@@ -3,7 +3,7 @@ import { Middleware } from 'redux'
 import { io, Socket } from "socket.io-client";
 import { SocketIoActions } from './SocketIoSlice';
 
-const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: string) => {
+export const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: string) => {
   const CurrySocketIoMiddleware: Middleware<{}, RootStateType> = store => {
     let socket: Socket;
 
@@ -38,5 +38,3 @@ const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: string) =
   }
   return CurrySocketIoMiddleware;
 }
-
-export default SocketIoMiddleware;

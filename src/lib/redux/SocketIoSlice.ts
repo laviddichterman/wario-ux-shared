@@ -74,9 +74,6 @@ const SocketIoSlice = createSlice({
   }
 });
 
-
 export const SocketIoActions = SocketIoSlice.actions;
-
+export const SocketIoReducer = SocketIoSlice.reducer;
 export const IsSocketDataLoaded = (s: SocketIoState) => s.serverTime !== null && s.fulfillments !== null && s.catalog !== null && s.settings !== null;
-
-export default SocketIoSlice.reducer;
