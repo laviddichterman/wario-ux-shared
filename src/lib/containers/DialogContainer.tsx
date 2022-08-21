@@ -1,4 +1,3 @@
-import React from 'react';
 import { Divider, DialogTitle, Dialog, DialogProps } from '@mui/material';
 
 export interface IDialogContainer {

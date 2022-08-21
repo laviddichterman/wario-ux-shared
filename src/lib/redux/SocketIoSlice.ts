@@ -74,6 +74,8 @@ const SocketIoSlice = createSlice({
   }
 });
 
+export const { selectAll: getProductInstanceFunctions, selectById: getProductInstanceFunctionById } =
+  ProductInstanceFunctionsAdapter.getSelectors();
 export const SocketIoActions = SocketIoSlice.actions;
 export const SocketIoReducer = SocketIoSlice.reducer;
 export const IsSocketDataLoaded = (s: SocketIoState) => s.serverTime !== null && s.fulfillments !== null && s.catalog !== null && s.settings !== null;
