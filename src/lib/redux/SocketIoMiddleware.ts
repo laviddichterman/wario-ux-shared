@@ -1,7 +1,8 @@
 import { FulfillmentConfig, ICatalog, IWSettings } from '@wcp/wcpshared';
 import { Middleware } from 'redux'
 import { io, Socket } from "socket.io-client";
-import { SocketIoActions } from './SocketIoSlice';
+import { SocketIoActions, TIMING_POLLING_INTERVAL } from './SocketIoSlice';
+import { parseISO } from 'date-fns';
 
 export const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: string) => {
   const CurrySocketIoMiddleware: Middleware<{}, RootStateType> = store => {
@@ -25,6 +26,12 @@ export const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: st
         });
         socket.on("WCP_SERVER_TIME", (data: { time: string; tz: string; }) => {
           store.dispatch(SocketIoActions.receiveServerTime(data));
+          store.dispatch(SocketIoActions.setPageLoadTime(parseISO(data.time).valueOf()));
+          store.dispatch(SocketIoActions.setPageLoadTimeLocal(Date.now()));
+          const checkTiming = () => {
+            store.dispatch(SocketIoActions.setCurrentTime(Date.now()));
+          }
+          setInterval(checkTiming, TIMING_POLLING_INTERVAL);
         });
         socket.on("WCP_SETTINGS", (data: IWSettings) => {
           store.dispatch(SocketIoActions.receiveSettings(data));

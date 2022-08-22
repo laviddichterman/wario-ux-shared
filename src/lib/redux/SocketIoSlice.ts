@@ -1,5 +1,13 @@
 import { createEntityAdapter, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
-import type { FulfillmentConfig, ICatalog, ICategory, IOption, IOptionType, IProduct, IProductInstance, IProductInstanceFunction, IWSettings, OrderInstanceFunction } from "@wcp/wcpshared";
+import { parseISO } from 'date-fns';
+import type { FulfillmentConfig, ICatalog, ICategory, IMenu, IOption, IOptionType, IProduct, IProductInstance, IProductInstanceFunction, IWSettings, OrderInstanceFunction } from "@wcp/wcpshared";
+
+export const TIMING_POLLING_INTERVAL = 30000;
+
+export interface CurrentTimes {
+  loadTime: number;
+  currentLocalTime: number;
+}
 
 export const OrderInstanceFunctionsAdapter = createEntityAdapter<OrderInstanceFunction>({ selectId: entry => entry.id });
 export const ProductInstanceFunctionsAdapter = createEntityAdapter<IProductInstanceFunction>({ selectId: entry => entry.id });
@@ -10,8 +18,16 @@ export const IOptionsAdapter = createEntityAdapter<IOption>({ selectId: entry =>
 export const ICategoriesAdapter = createEntityAdapter<ICategory>({ selectId: entry => entry.id });
 export const { selectAll: getCategories, selectById: getCategoryById, selectIds: getCategoryIds } =
   ICategoriesAdapter.getSelectors();
+
 export interface SocketIoState {
+  pageLoadTime: number;
+  pageLoadTimeLocal: number;
+  roughTicksSinceLoad: number;
+  currentTime: number;
+  currentLocalTime: number;
   serverTime: { time: string, tz: string } | null; // ISO formatted string
+
+  menu: IMenu | null;
   catalog: ICatalog | null;
   modifiers: EntityState<IOptionType>;
   modifierOptions: EntityState<IOption>;
@@ -25,7 +41,14 @@ export interface SocketIoState {
   status: 'NONE' | 'START' | 'CONNECTED' | 'FAILED';
 }
 
+
 const initialState: SocketIoState = {
+  pageLoadTime: 0,
+  pageLoadTimeLocal: 0,
+  roughTicksSinceLoad: 0,
+  currentTime: 0,
+  currentLocalTime: 0,
+
   serverTime: null,
   catalog: null,
   fulfillments: null,
@@ -37,6 +60,7 @@ const initialState: SocketIoState = {
   productInstanceFunctions: ProductInstanceFunctionsAdapter.getInitialState(),
   orderInstanceFunctions: OrderInstanceFunctionsAdapter.getInitialState(),
   settings: null,
+  menu: null,
   status: "NONE"
 }
 
@@ -70,6 +94,25 @@ const SocketIoSlice = createSlice({
     },
     receiveSettings(state, action: PayloadAction<IWSettings>) {
       state.settings = action.payload;
+    },
+    setPageLoadTime(state, action: PayloadAction<number>) {
+      state.pageLoadTime = action.payload;
+      state.currentTime = action.payload;
+    },
+    setPageLoadTimeLocal(state, action: PayloadAction<number>) {
+      state.pageLoadTimeLocal = action.payload;
+      state.currentLocalTime = action.payload;
+    },
+    // invoked by middleware
+    setCurrentTime(state, action: PayloadAction<number>) {
+      const currentLocalTime = action.payload;
+      const ticks = Math.max(state.roughTicksSinceLoad + TIMING_POLLING_INTERVAL, currentLocalTime - state.pageLoadTimeLocal);
+      state.currentLocalTime = Math.max(currentLocalTime, state.pageLoadTimeLocal + ticks);
+      state.currentTime = parseISO(state.serverTime!.time).valueOf() + ticks;
+      state.roughTicksSinceLoad = ticks;
+    },
+    setMenu(state, action: PayloadAction<IMenu>) {
+      state.menu = action.payload;
     }
   }
 });
