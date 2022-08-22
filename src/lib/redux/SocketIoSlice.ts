@@ -78,7 +78,16 @@ const SocketIoSlice = createSlice({
       state.status = 'CONNECTED';
     },
     receiveServerTime(state, action: PayloadAction<{ time: string, tz: string }>) {
-      state.serverTime = action.payload;
+      if (state.serverTime === null) {
+        state.serverTime = action.payload;
+        const pageLoadTime = parseISO(action.payload.time).valueOf();
+        state.pageLoadTime = pageLoadTime;
+        state.currentTime = pageLoadTime;
+        const pageLoadTimeLocal = Date.now();
+        state.pageLoadTimeLocal = pageLoadTimeLocal;
+        state.currentLocalTime = pageLoadTimeLocal;
+      }
+
     },
     receiveCatalog(state, action: PayloadAction<ICatalog>) {
       state.catalog = action.payload;
@@ -94,14 +103,6 @@ const SocketIoSlice = createSlice({
     },
     receiveSettings(state, action: PayloadAction<IWSettings>) {
       state.settings = action.payload;
-    },
-    setPageLoadTime(state, action: PayloadAction<number>) {
-      state.pageLoadTime = action.payload;
-      state.currentTime = action.payload;
-    },
-    setPageLoadTimeLocal(state, action: PayloadAction<number>) {
-      state.pageLoadTimeLocal = action.payload;
-      state.currentLocalTime = action.payload;
     },
     // invoked by middleware
     setCurrentTime(state, action: PayloadAction<number>) {

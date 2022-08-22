@@ -1,10 +1,9 @@
 import { FulfillmentConfig, ICatalog, IWSettings } from '@wcp/wcpshared';
 import { Middleware } from 'redux'
 import { io, Socket } from "socket.io-client";
-import { SocketIoActions, TIMING_POLLING_INTERVAL } from './SocketIoSlice';
-import { parseISO } from 'date-fns';
+import { SocketIoState, SocketIoActions, TIMING_POLLING_INTERVAL } from './SocketIoSlice';
 
-export const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: string) => {
+export const SocketIoMiddleware = <RootStateType extends { ws: SocketIoState }>(hostAPI: string, namespace: string) => {
   const CurrySocketIoMiddleware: Middleware<{}, RootStateType> = store => {
     let socket: Socket;
 
@@ -25,13 +24,13 @@ export const SocketIoMiddleware = <RootStateType>(hostAPI: string, namespace: st
           store.dispatch(SocketIoActions.receiveFulfillments(data));
         });
         socket.on("WCP_SERVER_TIME", (data: { time: string; tz: string; }) => {
-          store.dispatch(SocketIoActions.receiveServerTime(data));
-          store.dispatch(SocketIoActions.setPageLoadTime(parseISO(data.time).valueOf()));
-          store.dispatch(SocketIoActions.setPageLoadTimeLocal(Date.now()));
-          const checkTiming = () => {
-            store.dispatch(SocketIoActions.setCurrentTime(Date.now()));
+          if (store.getState().ws.serverTime === null) {
+            const checkTiming = () => {
+              store.dispatch(SocketIoActions.setCurrentTime(Date.now()));
+            }
+            setInterval(checkTiming, TIMING_POLLING_INTERVAL);
           }
-          setInterval(checkTiming, TIMING_POLLING_INTERVAL);
+          store.dispatch(SocketIoActions.receiveServerTime(data));
         });
         socket.on("WCP_SETTINGS", (data: IWSettings) => {
           store.dispatch(SocketIoActions.receiveSettings(data));
