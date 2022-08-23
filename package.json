@@ -1,6 +1,6 @@
 {
   "name": "@wcp/wario-ux-shared",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Shared UX elements across WARIO",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -47,7 +47,8 @@
     "@mui/material": "^5.10.1",
     "@mui/styled-engine": "^5.10.1",
     "@reduxjs/toolkit": "^1.8.5",
-    "@wcp/wcpshared": "^4.1.9",
+    "@wcp/wcpshared": "^4.1.12",
+    "axios": "^0.27.2",
     "framer-motion": "^7.2.0",
     "react": "^18.2.0",
     "redux": "^4.2.0",
@@ -56,8 +57,8 @@
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
     "@types/geojson": "^7946.0.10",
-    "@typescript-eslint/eslint-plugin": "^5.33.1",
-    "@typescript-eslint/parser": "^5.33.1",
+    "@typescript-eslint/eslint-plugin": "^5.34.0",
+    "@typescript-eslint/parser": "^5.34.0",
     "ava": "^4.3.1",
     "codecov": "^3.8.2",
     "cspell": "^6.8.0",
