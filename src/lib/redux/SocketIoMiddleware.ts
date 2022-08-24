@@ -1,4 +1,4 @@
-import { FulfillmentConfig, ICatalog, IWSettings } from '@wcp/wcpshared';
+import type { FulfillmentConfig, ICatalog, IWSettings } from '@wcp/wcpshared';
 import { Middleware } from 'redux'
 import { io, Socket } from "socket.io-client";
 import { SocketIoState, SocketIoActions, TIMING_POLLING_INTERVAL } from './SocketIoSlice';

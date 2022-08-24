@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ValidateAndLockCreditResponse } from "@wcp/wcpshared";
-import { AxiosInstance } from "axios";
+import type { ValidateAndLockCreditResponse } from "@wcp/wcpshared";
+import type { AxiosInstance } from "axios";
 
 export const CreateValidateStoreCreditThunk =
   (axiosInstance: AxiosInstance) =>
