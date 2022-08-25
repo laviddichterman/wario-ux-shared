@@ -91,12 +91,12 @@ const SocketIoSlice = createSlice({
     },
     receiveCatalog(state, action: PayloadAction<ICatalog>) {
       state.catalog = action.payload;
-      IOptionTypesAdapter.setAll(state.modifiers, Object.values(action.payload.modifiers).map(x => x.modifier_type));
-      IOptionsAdapter.setAll(state.modifierOptions, ([] as IOption[]).concat(...Object.values(action.payload.modifiers).map(x => x.options)));
+      IOptionTypesAdapter.setAll(state.modifiers, Object.values(action.payload.modifiers).map(x => x.modifierType));
+      IOptionsAdapter.setAll(state.modifierOptions, action.payload.options);
       IProductsAdapter.setAll(state.products, Object.values(action.payload.products).map(x => x.product));
-      IProductInstancesAdapter.setAll(state.productInstances, ([] as IProductInstance[]).concat(...Object.values(action.payload.products).map(x => x.instances)));
+      IProductInstancesAdapter.setAll(state.productInstances, action.payload.productInstances);
       ICategoriesAdapter.setAll(state.categories, Object.values(action.payload.categories).map(x => x.category));
-      ProductInstanceFunctionsAdapter.setAll(state.productInstanceFunctions, action.payload.product_instance_functions);
+      ProductInstanceFunctionsAdapter.setAll(state.productInstanceFunctions, action.payload.productInstanceFunctions);
     },
     receiveFulfillments(state, action: PayloadAction<Record<string, FulfillmentConfig>>) {
       state.fulfillments = action.payload;
