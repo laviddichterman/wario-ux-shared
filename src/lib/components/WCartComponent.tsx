@@ -30,8 +30,8 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.cart.map((x, i) => x[1].map((cartEntry) => (
-            <TableRow key={`${cartEntry.categoryId}${cartEntry.product.p.PRODUCT_CLASS.baseProductId}${i}`}>
+          {props.cart.map(([_, entries]) => entries).flat().map((cartEntry, i) => (
+            <TableRow key={i}>
               <TableCell>
                 <ProductDisplay catalogSelectors={props.catalogSelectors} productMetadata={cartEntry.product.m} description displayContext="order" />
               </TableCell>
@@ -40,7 +40,7 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
               <TableCell align="right"><ProductPrice>{MoneyToDisplayString(cartEntry.product.m.price, false)}</ProductPrice></TableCell>
               <TableCell align="right"><ProductPrice>{MoneyToDisplayString({ currency: cartEntry.product.m.price.currency, amount: Math.round(cartEntry.product.m.price.amount * cartEntry.quantity) }, false)}</ProductPrice></TableCell>
             </TableRow>
-          ))).flat()}
+          ))}
           <TableRow />
           {/* {selectedService === DELIVERY_SERVICE && (
             <TableRow>
