@@ -31,7 +31,7 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
         </TableHead>
         <TableBody>
           {props.cart.map((x, i) => x[1].map((cartEntry) => (
-            <TableRow key={`${cartEntry.categoryId}${i}`}>
+            <TableRow key={`${cartEntry.categoryId}${cartEntry.product.p.PRODUCT_CLASS.baseProductId}${i}`}>
               <TableCell>
                 <ProductDisplay catalogSelectors={props.catalogSelectors} productMetadata={cartEntry.product.m} description displayContext="order" />
               </TableCell>
