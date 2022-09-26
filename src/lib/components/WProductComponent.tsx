@@ -1,12 +1,11 @@
-import React, { useMemo } from 'react';
-import { ComputePotentialPrices, WProductMetadata, WProductDisplayOptions, PriceDisplay, MoneyToDisplayString, IProductInstance, ICatalogSelectors } from '@wcp/wcpshared';
+import { useMemo } from 'react';
+import { ComputePotentialPrices, WProductMetadata, WProductDisplayOptions, PriceDisplay, MoneyToDisplayString, ICatalogSelectors } from '@wcp/wcpshared';
 import { Box, BoxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Dots, ProductAdornment, AdornedSxProps, ProductDescription, ProductPrice, ProductTitle } from '../styled/styled';
 
 interface WProductComponentProps {
   catalogSelectors: ICatalogSelectors;
-  productInstance: IProductInstance;
   productMetadata: WProductMetadata;
   description?: boolean;
   allowAdornment?: boolean;
@@ -15,7 +14,8 @@ interface WProductComponentProps {
   price?: boolean;
 };
 
-function WProductComponent({ catalogSelectors, productInstance, productMetadata, description, allowAdornment, dots, displayContext, price, sx, ...other }: WProductComponentProps & BoxProps) {
+function WProductComponent({ catalogSelectors, productMetadata, description, allowAdornment, dots, displayContext, price, sx, ...other }: WProductComponentProps & BoxProps) {
+  const productInstance = useMemo(() => catalogSelectors.productInstance(productMetadata.pi[0]), [catalogSelectors.productInstance, productMetadata.pi])
   const adornmentHTML = useMemo(() => allowAdornment && productInstance && productInstance.displayFlags[displayContext].adornment ? productInstance.displayFlags[displayContext].adornment : "", [allowAdornment, productInstance, displayContext]);
   const descriptionHTML = useMemo(() => description && productMetadata.description ? productMetadata.description : "", [description, productMetadata.description]);
   const optionsSections = useMemo(() => {
