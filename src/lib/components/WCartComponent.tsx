@@ -9,12 +9,13 @@ export interface WCheckoutCartComponentProps {
   catalogSelectors: ICatalogSelectors;
   cart: [string, CoreCartEntry<WProduct>[]][];
   taxRate: number;
-  tipValue: IMoney;
-  taxValue: IMoney;
+  tipValue?: IMoney;
+  taxValue?: IMoney;
   discountCreditsApplied: { amount: IMoney; code: string; }[];
   giftCreditsApplied: { amount: IMoney; code: string; }[];
   balanceAfterCredits?: IMoney;
   payments: CreditPayment[];
+  hideProductDescriptions?: boolean;
 }
 
 export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
@@ -33,7 +34,7 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
           {props.cart.map(([_, entries]) => entries).flat().map((cartEntry, i) => (
             <TableRow key={i}>
               <TableCell>
-                <ProductDisplay catalogSelectors={props.catalogSelectors} productMetadata={cartEntry.product.m} description displayContext="order" />
+                <ProductDisplay catalogSelectors={props.catalogSelectors} productMetadata={cartEntry.product.m} description={props.hideProductDescriptions === true ? false : true} displayContext="order" />
               </TableCell>
               <TableCell><ProductPrice>{cartEntry.quantity}</ProductPrice></TableCell>
               <TableCell><ProductPrice>×</ProductPrice></TableCell>
@@ -64,14 +65,14 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
               </TableCell>
               <TableCell colSpan={2} align="right"><ProductPrice>-{MoneyToDisplayString(credit.amount, false)}</ProductPrice></TableCell>
             </TableRow>)}
-          {props.taxValue.amount > 0 &&
+          {props.taxValue && props.taxValue.amount > 0 &&
             <TableRow>
               <TableCell colSpan={3} >
                 <ProductTitle>Sales Tax ({fPercent(props.taxRate)})</ProductTitle>
               </TableCell>
               <TableCell colSpan={2} align="right"><ProductPrice>{MoneyToDisplayString(props.taxValue, false)}</ProductPrice></TableCell>
             </TableRow>}
-          {props.tipValue.amount > 0 &&
+          {props.tipValue && props.tipValue.amount > 0 &&
             <TableRow>
               <TableCell colSpan={3} >
                 <ProductTitle>Gratuity*</ProductTitle>
@@ -100,7 +101,7 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
                 <ProductTitle>Payment received {payment.payment.last4 ? ` from card ending in: ${payment.payment.last4}` : " from credit card."}</ProductTitle>
               </TableCell>
               <TableCell colSpan={2} align="right">
-                <ProductPrice >-{MoneyToDisplayString(payment.amount, false)}</ProductPrice>
+                <ProductPrice >-{MoneyToDisplayString({ currency: payment.amount.currency, amount: payment.amount.amount + payment.tipAmount.amount }, false)}</ProductPrice>
               </TableCell>
             </TableRow>)}
         </TableBody>
