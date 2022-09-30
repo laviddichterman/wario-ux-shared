@@ -19,7 +19,7 @@ export const RootStyle = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
 }));
 
-export const LoadingScreen = function () {
+export default function LoadingScreen() {
   return (
     <>
       <RootStyle >
