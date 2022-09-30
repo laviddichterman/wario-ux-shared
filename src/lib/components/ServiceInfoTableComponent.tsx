@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Table, TableBody, TableContainer, TableRow, TableCell, Paper } from '@mui/material';
 
 import { ComputeServiceTimeDisplayString, CustomerInfoDto, FulfillmentConfig, FulfillmentDto, WDateUtils } from '@wcp/wcpshared';
