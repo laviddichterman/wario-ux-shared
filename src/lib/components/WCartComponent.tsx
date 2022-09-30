@@ -101,7 +101,7 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
                 <ProductTitle>Payment received {payment.payment.last4 ? ` from card ending in: ${payment.payment.last4}` : " from credit card."}</ProductTitle>
               </TableCell>
               <TableCell colSpan={2} align="right">
-                <ProductPrice >-{MoneyToDisplayString({ currency: payment.amount.currency, amount: payment.amount.amount + payment.tipAmount.amount }, false)}</ProductPrice>
+                <ProductPrice >-{MoneyToDisplayString(payment.amount, false)}</ProductPrice>
               </TableCell>
             </TableRow>)}
         </TableBody>
