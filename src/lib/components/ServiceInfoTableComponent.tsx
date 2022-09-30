@@ -11,7 +11,7 @@ export interface ServiceInfoTableComponentProps {
   specialInstructions: string;
 }
 
-export default function ServiceInfoTableComponent(props: ServiceInfoTableComponentProps) {
+export const ServiceInfoTableComponent = (props: ServiceInfoTableComponentProps) => {
   const { fulfillment, customerInfo, specialInstructions, fulfillmentConfig } = props;
   const serviceDateTime = useMemo(() => WDateUtils.ComputeServiceDateTime(fulfillment), [fulfillment]);
   return (
