@@ -6,6 +6,7 @@ export * from './lib/common/DateFnsAdapter';
 export * from './lib/common/shared';
 export * from './lib/common/numbers';
 export * from './lib/containers/DialogContainer';
+export * from './lib/containers/FullScreenPulsingContainer';
 export * from './lib/components/Logo';
 export * from './lib/components/Logo';
 export * from './lib/components/WProductComponent';
