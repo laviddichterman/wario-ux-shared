@@ -11,7 +11,6 @@ export const selectGroupedAndOrderedCart = <RootState extends { ws: SocketIoStat
 
 export const SelectSquareAppId = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings?.config.SQUARE_APPLICATION_ID as string ?? "";
 export const SelectSquareLocationId = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings?.config.SQUARE_LOCATION as string ?? "";
-export const SelectSquareAlternateLocationId = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings?.config.SQUARE_LOCATION_ALTERNATE as string ?? "";
 export const SelectDefaultFulfillmentId = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings?.config.DEFAULT_FULFILLMENTID as string ?? null;
 export const SelectAllowAdvanced = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings?.config.ALLOW_ADVANCED as boolean ?? false;
 export const SelectDeliveryAreaLink = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings!.config.DELIVERY_LINK as string;
