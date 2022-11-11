@@ -1,24 +1,51 @@
 import { Typography, Table, TableBody, TableContainer, TableRow, TableHead, TableCell, Paper } from '@mui/material';
 import { ProductDisplay } from './WProductComponent';
-import { CoreCartEntry, CreditPayment, ICatalogSelectors, IMoney, MoneyToDisplayString, WProduct } from '@wcp/wcpshared';
+import { CoreCartEntry, DiscountMethod, ICatalogSelectors, IMoney, MoneyToDisplayString, OrderLineDiscount, OrderPayment, PaymentMethod, TenderBaseStatus, WProduct } from '@wcp/wcpshared';
 import { fPercent } from '../common/numbers';
 import { ProductPrice, ProductTitle } from '../styled/styled';
+import { useCallback, useMemo } from 'react';
 
 export interface WCheckoutCartComponentProps {
   selectedService: string;
   catalogSelectors: ICatalogSelectors;
   cart: [string, CoreCartEntry<WProduct>[]][];
+  discounts: OrderLineDiscount[];
   taxRate: number;
-  tipValue?: IMoney;
   taxValue?: IMoney;
-  discountCreditsApplied: { amount: IMoney; code: string; }[];
-  giftCreditsApplied: { amount: IMoney; code: string; }[];
-  balanceAfterCredits?: IMoney;
-  payments: CreditPayment[];
+  tipValue?: IMoney;
+  total?: IMoney;
+  payments: OrderPayment[];
   hideProductDescriptions?: boolean;
 }
 
 export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
+  const balance: IMoney | null = useMemo(() => props.total && props.payments.length > 0 ? { currency: props.total.currency, amount: props.payments.reduce((acc, payment) => (acc - payment.amount.amount), props.total.amount) } : null, [props.total, props.payments])
+  const generateDiscountLine = useCallback((discount: OrderLineDiscount) => {
+    switch (discount.t) {
+      case DiscountMethod.CreditCodeAmount: {
+        return (<ProductTitle>Discount Code Applied <Typography sx={{ textTransform: "none" }}>({discount.discount.code})</Typography></ProductTitle>);
+      }
+      case DiscountMethod.ManualAmount: {
+        return (<ProductTitle>{MoneyToDisplayString(discount.discount.amount, false)} off</ProductTitle>);
+      }
+      case DiscountMethod.ManualPercentage: {
+        return (<ProductTitle>{fPercent(discount.discount.percentage)} off</ProductTitle>);
+      }
+    }
+  }, []);
+  const generatePaymentLine = useCallback((payment: OrderPayment) => {
+    switch (payment.t) {
+      case PaymentMethod.CreditCard: {
+        return payment.status === TenderBaseStatus.PROPOSED ? "" : <ProductTitle>Payment received {payment.payment.last4 ? ` from card ending in: ${payment.payment.last4}` : " from credit card."}</ProductTitle>;
+      }
+      case PaymentMethod.StoreCredit: {
+        return <ProductTitle>Digital Gift Applied <Typography sx={{ textTransform: "none" }}>({payment.payment.code})</Typography></ProductTitle>;
+      }
+      case PaymentMethod.Cash: {
+        return (<ProductTitle>Cash payment of {MoneyToDisplayString(payment.payment.amountTendered, false)}</ProductTitle>);
+      }
+    }
+  }, []);
   return (<>
     <Typography variant="h4" sx={{ p: 2, textTransform: 'uppercase', fontFamily: 'Source Sans Pro', }}>Order summary</Typography>
     <TableContainer component={Paper}>
@@ -58,12 +85,14 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
               </TableCell>
             </TableRow>
           )} */}
-          {props.discountCreditsApplied.map(credit =>
-            <TableRow key={credit.code}>
+          {props.discounts.map((discount, i) =>
+            <TableRow key={`${discount.t}${i}`}>
               <TableCell colSpan={3} >
-                <ProductTitle>Discount Code Applied <Typography sx={{ textTransform: "none" }}>({credit.code})</Typography></ProductTitle>
+                {generateDiscountLine(discount)}
               </TableCell>
-              <TableCell colSpan={2} align="right"><ProductPrice>-{MoneyToDisplayString(credit.amount, false)}</ProductPrice></TableCell>
+              <TableCell colSpan={2} align="right">
+                <ProductPrice >-{MoneyToDisplayString(discount.discount.amount, false)}</ProductPrice>
+              </TableCell>
             </TableRow>)}
           {props.taxValue && props.taxValue.amount > 0 &&
             <TableRow>
@@ -75,35 +104,35 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
           {props.tipValue && props.tipValue.amount > 0 &&
             <TableRow>
               <TableCell colSpan={3} >
-                <ProductTitle>Gratuity*</ProductTitle>
-                <div>Gratuity is distributed in its entirety to non-owner staff working on the day of your order.</div>
+                <ProductTitle>Gratuity</ProductTitle>
+                <div>Gratuity is distributed in its entirety to all non-owner staff working front and back of house on the day of your order.</div>
               </TableCell>
               <TableCell colSpan={2} align="right"><ProductPrice>{MoneyToDisplayString(props.tipValue, false)}</ProductPrice></TableCell>
             </TableRow>}
-          {props.giftCreditsApplied.map(credit =>
-            <TableRow key={credit.code}>
-              <TableCell colSpan={3} >
-                <ProductTitle>Digital Gift Applied <Typography sx={{ textTransform: "none" }}>({credit.code})</Typography></ProductTitle>
-              </TableCell>
-              <TableCell colSpan={2} align="right">
-                <ProductPrice >-{MoneyToDisplayString(credit.amount, false)}</ProductPrice>
-              </TableCell>
-            </TableRow>)}
-          {props.balanceAfterCredits && <TableRow>
+          {props.total && <TableRow>
             <TableCell colSpan={3} >
               <ProductTitle>Total</ProductTitle>
             </TableCell>
-            <TableCell colSpan={2} align="right"><ProductPrice>{MoneyToDisplayString(props.balanceAfterCredits, false)}</ProductPrice></TableCell>
+            <TableCell colSpan={2} align="right"><ProductPrice>{MoneyToDisplayString(props.total, false)}</ProductPrice></TableCell>
           </TableRow>}
-          {props.payments.map(payment =>
-            <TableRow key={payment.payment.processorId}>
+          {props.payments.map((payment, i) =>
+            <TableRow key={`PAYMENT_${i}`}>
               <TableCell colSpan={3} >
-                <ProductTitle>Payment received {payment.payment.last4 ? ` from card ending in: ${payment.payment.last4}` : " from credit card."}</ProductTitle>
+                {generatePaymentLine(payment)}
               </TableCell>
               <TableCell colSpan={2} align="right">
                 <ProductPrice >-{MoneyToDisplayString(payment.amount, false)}</ProductPrice>
               </TableCell>
             </TableRow>)}
+          {balance &&
+            <TableRow>
+              <TableCell colSpan={3} >
+                <ProductTitle>Balance</ProductTitle>
+              </TableCell>
+              <TableCell colSpan={2} align="right">
+                <ProductPrice >{MoneyToDisplayString(balance, false)}</ProductPrice>
+              </TableCell>
+            </TableRow>}
         </TableBody>
       </Table>
     </TableContainer>
