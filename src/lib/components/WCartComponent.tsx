@@ -13,6 +13,7 @@ export interface WCheckoutCartComponentProps {
   taxRate: number;
   taxValue?: IMoney;
   tipValue?: IMoney;
+  serviceCharge?: IMoney;
   total?: IMoney;
   payments: OrderPayment[];
   hideProductDescriptions?: boolean;
@@ -70,21 +71,6 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
             </TableRow>
           ))}
           <TableRow />
-          {/* {selectedService === DELIVERY_SERVICE && (
-            <TableRow>
-              <TableCell colSpan={2} >
-                <ProductTitle>Delivery Fee{deliveryFee === 0 && " (waived)"}</ProductTitle>
-              </TableCell>
-              <TableCell />
-              <TableCell colSpan={2} align="right">
-                <ProductPrice>
-                  {deliveryFee === 0 ?
-                    <Typography sx={{ textDecoration: "line-through" }}>{fCurrencyNoUnit(5)}</Typography> :
-                    <>{fCurrencyNoUnit(deliveryFee)}</>}
-                </ProductPrice>
-              </TableCell>
-            </TableRow>
-          )} */}
           {props.discounts.map((discount, i) =>
             <TableRow key={`${discount.t}${i}`}>
               <TableCell colSpan={3} >
@@ -94,6 +80,14 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
                 <ProductPrice >-{MoneyToDisplayString(discount.discount.amount, false)}</ProductPrice>
               </TableCell>
             </TableRow>)}
+          {props.serviceCharge && props.serviceCharge.amount > 0 &&
+            <TableRow>
+              <TableCell colSpan={3} >
+                <ProductTitle>Staff Commission</ProductTitle>
+                <div>We've eliminated tipping in favor of a flat service charge that is distributed in its entirety to all non-owner staff working front and back of house on the day of your order.</div>
+              </TableCell>
+              <TableCell colSpan={2} align="right"><ProductPrice>{MoneyToDisplayString(props.serviceCharge, false)}</ProductPrice></TableCell>
+            </TableRow>}
           {props.taxValue && props.taxValue.amount > 0 &&
             <TableRow>
               <TableCell colSpan={3} >
