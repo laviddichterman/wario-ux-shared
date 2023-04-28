@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box } from '@mui/material';
@@ -23,7 +23,7 @@ export const FullScreenPulsingContainer = (props: { children: ReactNode }) => {
   return (
     <>
       <RootStyle >
-        <motion.div
+        <m.div
           animate={{
             scale: [1, 0.9, 0.9, 1, 1],
             opacity: [1, 0.48, 0.48, 1, 1],
@@ -36,10 +36,10 @@ export const FullScreenPulsingContainer = (props: { children: ReactNode }) => {
           }}
         >
           {props.children}
-        </motion.div>
+        </m.div>
 
         <Box
-          component={motion.div}
+          component={m.div}
           animate={{
             scale: [1.2, 1, 1, 1.2, 1.2],
             rotate: [270, 0, 0, 270, 270],
@@ -57,7 +57,7 @@ export const FullScreenPulsingContainer = (props: { children: ReactNode }) => {
         />
 
         <Box
-          component={motion.div}
+          component={m.div}
           animate={{
             scale: [1, 1.2, 1.2, 1, 1],
             rotate: [0, 270, 270, 0, 0],
