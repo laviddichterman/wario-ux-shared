@@ -1,42 +1,42 @@
 import type { FulfillmentConfig, ICatalog, IWSettings } from '@wcp/wcpshared';
 import { Middleware } from 'redux'
 import { io, Socket } from "socket.io-client";
-import { SocketIoState, SocketIoActions, TIMING_POLLING_INTERVAL } from './SocketIoSlice';
+import { SocketIoState, TIMING_POLLING_INTERVAL, receiveCatalog, receiveFulfillments, receiveServerTime, receiveSettings, setConnected, setCurrentTime, setFailed, startConnection } from './SocketIoSlice';
 
 export const SocketIoMiddleware = <RootStateType extends { ws: SocketIoState }>(hostAPI: string, namespace: string) => {
   const CurrySocketIoMiddleware: Middleware<{}, RootStateType> = store => {
     let socket: Socket;
 
     return next => action => {
-      if (SocketIoActions.startConnection.match(action)) {
+      if (startConnection.match(action)) {
         socket = io(`${hostAPI}/${namespace}`, {
           autoConnect: true, secure: true,
           transports: ["websocket", "polling"],
           withCredentials: true
         });
         socket.on('connect', () => {
-          store.dispatch(SocketIoActions.setConnected());
+          store.dispatch(setConnected());
           socket.on('disconnect', () => {
-            store.dispatch(SocketIoActions.setFailed());
+            store.dispatch(setFailed());
           });
         });
         socket.on("WCP_FULFILLMENTS", (data: Record<string, FulfillmentConfig>) => {
-          store.dispatch(SocketIoActions.receiveFulfillments(data));
+          store.dispatch(receiveFulfillments(data));
         });
         socket.on("WCP_SERVER_TIME", (data: { time: string; tz: string; }) => {
           if (store.getState().ws.serverTime === null) {
             const checkTiming = () => {
-              store.dispatch(SocketIoActions.setCurrentTime(Date.now()));
+              store.dispatch(setCurrentTime(Date.now()));
             }
             setInterval(checkTiming, TIMING_POLLING_INTERVAL);
           }
-          store.dispatch(SocketIoActions.receiveServerTime(data));
+          store.dispatch(receiveServerTime(data));
         });
         socket.on("WCP_SETTINGS", (data: IWSettings) => {
-          store.dispatch(SocketIoActions.receiveSettings(data));
+          store.dispatch(receiveSettings(data));
         });
         socket.on("WCP_CATALOG", (data: ICatalog) => {
-          store.dispatch(SocketIoActions.receiveCatalog(data));
+          store.dispatch(receiveCatalog(data));
         });
       }
       next(action);

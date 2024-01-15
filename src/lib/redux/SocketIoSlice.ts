@@ -9,13 +9,13 @@ export interface CurrentTimes {
   currentLocalTime: number;
 }
 
-export const ProductInstanceFunctionsAdapter = createEntityAdapter<IProductInstanceFunction>({ selectId: entry => entry.id });
-export const OrderInstanceFunctionsAdapter = createEntityAdapter<OrderInstanceFunction>({ selectId: entry => entry.id });
-export const IProductEntriesAdapter = createEntityAdapter<CatalogProductEntry>({ selectId: entry => entry.product.id });
-export const IProductInstancesAdapter = createEntityAdapter<IProductInstance>({ selectId: entry => entry.id });
-export const ICategoryEntriesAdapter = createEntityAdapter<CatalogCategoryEntry>({ selectId: entry => entry.category.id });
-export const ModifierTypeEntriesAdapter = createEntityAdapter<CatalogModifierEntry>({ selectId: entry => entry.modifierType.id });
-export const ModifierOptionsAdapter = createEntityAdapter<IOption>({ selectId: entry => entry.id });
+export const ProductInstanceFunctionsAdapter = createEntityAdapter<IProductInstanceFunction>();
+export const OrderInstanceFunctionsAdapter = createEntityAdapter<OrderInstanceFunction>();
+export const IProductEntriesAdapter = createEntityAdapter<CatalogProductEntry, string>({ selectId: entry => entry.product.id });
+export const IProductInstancesAdapter = createEntityAdapter<IProductInstance>();
+export const ICategoryEntriesAdapter = createEntityAdapter<CatalogCategoryEntry, string>({ selectId: entry => entry.category.id });
+export const ModifierTypeEntriesAdapter = createEntityAdapter<CatalogModifierEntry, string>({ selectId: entry => entry.modifierType.id });
+export const ModifierOptionsAdapter = createEntityAdapter<IOption>();
 
 export const { selectAll: getProductInstanceFunctions, selectById: getProductInstanceFunctionById, selectIds: getProductInstanceFunctionIds } =
   ProductInstanceFunctionsAdapter.getSelectors();
@@ -42,13 +42,13 @@ export interface SocketIoState {
 
   menu: IMenu | null;
   catalog: ICatalog | null;
-  modifierEntries: EntityState<CatalogModifierEntry>;
-  modifierOptions: EntityState<IOption>;
-  products: EntityState<CatalogProductEntry>;
-  productInstances: EntityState<IProductInstance>;
-  categories: EntityState<CatalogCategoryEntry>;
-  productInstanceFunctions: EntityState<IProductInstanceFunction>;
-  orderInstanceFunctions: EntityState<OrderInstanceFunction>;
+  modifierEntries: EntityState<CatalogModifierEntry, string>;
+  modifierOptions: EntityState<IOption, string>;
+  products: EntityState<CatalogProductEntry, string>;
+  productInstances: EntityState<IProductInstance, string>;
+  categories: EntityState<CatalogCategoryEntry, string>;
+  productInstanceFunctions: EntityState<IProductInstanceFunction, string>;
+  orderInstanceFunctions: EntityState<OrderInstanceFunction, string>;
   fulfillments: Record<string, FulfillmentConfig> | null;
   settings: IWSettings | null;
   status: 'NONE' | 'START' | 'CONNECTED' | 'FAILED';
@@ -148,6 +148,6 @@ export const CatalogSelectors = (state: SocketIoState): ICatalogSelectors => ({
   productInstanceFunction: (id) => getProductInstanceFunctionById(state.productInstanceFunctions, id)
 })
 
-export const SocketIoActions = SocketIoSlice.actions;
+export const { receiveCatalog, receiveFulfillments, receiveServerTime, receiveSettings, setConnected, setCurrentTime, setFailed, setMenu, startConnection } = SocketIoSlice.actions;
 export const SocketIoReducer = SocketIoSlice.reducer;
 export const IsSocketDataLoaded = (s: SocketIoState) => s.serverTime !== null && s.fulfillments !== null && s.catalog !== null && s.settings !== null;
