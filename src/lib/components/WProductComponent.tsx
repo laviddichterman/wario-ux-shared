@@ -46,7 +46,8 @@ function WProductComponent({ catalogSelectors, productMetadata, description, all
       ...AdornedSxProps
     } : { ...sx }} >
       {adornmentHTML ? <ProductAdornment dangerouslySetInnerHTML={{ __html: adornmentHTML }} /> : ""}
-      <Box sx={{ position: "relative", mr: '26px' }}><ProductTitle sx={dots ? { bgcolor: "#fff" } : {}}>{productMetadata.name}</ProductTitle></Box>
+      {/* margin right is determined based on the length of the price text "from 21.00" takes up 6em, thus the priceText.length * .6 calculation */}
+      <Box sx={{ position: "relative", ...(price ? { mr: `${priceText.length * .6}em` } : {}) }}><ProductTitle sx={dots ? { bgcolor: "#fff" } : {}}>{productMetadata.name}</ProductTitle></Box>
       {price && <ProductPrice sx={{
         position: 'absolute',
         top: 0,
