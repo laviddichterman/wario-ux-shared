@@ -1,5 +1,6 @@
 import { CoreCartEntry, WProduct } from "@wcp/wcpshared";
 import { getCategoryEntryById, SocketIoState } from "./SocketIoSlice";
+import { AdapterCurrentTimeOverrideUtils } from "../common/DateFnsAdapter";
 
 export const selectGroupedAndOrderedCart = <RootState extends { ws: SocketIoState }, T extends CoreCartEntry<WProduct>>(s: RootState, cart: T[]) => {
   return Object.entries(cart.reduce((cartMap: Record<string, T[]>, entry: T) =>
@@ -39,3 +40,5 @@ export const SelectMessageRequestVegan = <RootState extends { ws: SocketIoState 
 export const SelectMessageRequestHalf = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings!.config.MESSAGE_REQUEST_HALF as string ?? "";
 export const SelectMessageRequestWellDone = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings!.config.MESSAGE_REQUEST_WELLDONE as string ?? "";
 export const SelectMessageRequestSlicing = <RootState extends { ws: SocketIoState }>(s: RootState) => s.ws.settings!.config.MESSAGE_REQUEST_SLICING as string ?? "";
+
+export const SelectDateFnsAdapter = <RootState extends { ws: SocketIoState }>(s: RootState) => AdapterCurrentTimeOverrideUtils(s.ws.currentTime !== 0 ? s.ws.currentTime : Date.now());
