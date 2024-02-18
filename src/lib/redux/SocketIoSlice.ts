@@ -16,6 +16,7 @@ export const IProductInstancesAdapter = createEntityAdapter<IProductInstance>();
 export const ICategoryEntriesAdapter = createEntityAdapter<CatalogCategoryEntry, string>({ selectId: entry => entry.category.id });
 export const ModifierTypeEntriesAdapter = createEntityAdapter<CatalogModifierEntry, string>({ selectId: entry => entry.modifierType.id });
 export const ModifierOptionsAdapter = createEntityAdapter<IOption>();
+export const FulfillmentsAdapter = createEntityAdapter<FulfillmentConfig>();
 
 export const { selectAll: getProductInstanceFunctions, selectById: getProductInstanceFunctionById, selectIds: getProductInstanceFunctionIds } =
   ProductInstanceFunctionsAdapter.getSelectors();
@@ -31,6 +32,8 @@ export const { selectAll: getModifierTypeEntries, selectById: getModifierTypeEnt
   ModifierTypeEntriesAdapter.getSelectors();
 export const { selectAll: getModifierOptions, selectById: getModifierOptionById, selectIds: getModifierOptionIds } =
   ModifierOptionsAdapter.getSelectors();
+export const { selectAll: getFulfillments, selectById: getFulfillmentById, selectIds: getFulfillmentIds } =
+  FulfillmentsAdapter.getSelectors();
 
 export interface SocketIoState {
   pageLoadTime: number;
@@ -49,7 +52,7 @@ export interface SocketIoState {
   categories: EntityState<CatalogCategoryEntry, string>;
   productInstanceFunctions: EntityState<IProductInstanceFunction, string>;
   orderInstanceFunctions: EntityState<OrderInstanceFunction, string>;
-  fulfillments: Record<string, FulfillmentConfig> | null;
+  fulfillments: EntityState<FulfillmentConfig, string>;
   settings: IWSettings | null;
   status: 'NONE' | 'START' | 'CONNECTED' | 'FAILED';
 }
@@ -63,7 +66,7 @@ const initialState: SocketIoState = {
 
   serverTime: null,
   catalog: null,
-  fulfillments: null,
+  fulfillments: FulfillmentsAdapter.getInitialState(),
   modifierEntries: ModifierTypeEntriesAdapter.getInitialState(),
   modifierOptions: ModifierOptionsAdapter.getInitialState(),
   products: IProductEntriesAdapter.getInitialState(),
@@ -111,8 +114,8 @@ const SocketIoSlice = createSlice({
       ProductInstanceFunctionsAdapter.setAll(state.productInstanceFunctions, action.payload.productInstanceFunctions);
       OrderInstanceFunctionsAdapter.setAll(state.orderInstanceFunctions, action.payload.orderInstanceFunctions);
     },
-    receiveFulfillments(state, action: PayloadAction<Record<string, FulfillmentConfig>>) {
-      state.fulfillments = action.payload;
+    receiveFulfillments(state, action: PayloadAction<FulfillmentConfig[]>) {
+      FulfillmentsAdapter.setAll(state.fulfillments, action.payload);
     },
     receiveSettings(state, action: PayloadAction<IWSettings>) {
       state.settings = action.payload;

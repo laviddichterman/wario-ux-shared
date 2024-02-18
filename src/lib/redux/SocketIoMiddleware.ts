@@ -21,7 +21,7 @@ export const SocketIoMiddleware = <RootStateType extends { ws: SocketIoState }>(
           });
         });
         socket.on("WCP_FULFILLMENTS", (data: Record<string, FulfillmentConfig>) => {
-          store.dispatch(receiveFulfillments(data));
+          store.dispatch(receiveFulfillments(Object.values(data)));
         });
         socket.on("WCP_SERVER_TIME", (data: { time: string; tz: string; }) => {
           if (store.getState().ws.serverTime === null) {
