@@ -1,6 +1,6 @@
 {
   "name": "@wcp/wario-ux-shared",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Shared UX elements across WARIO",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -53,6 +53,7 @@
     "framer-motion": "^11.0.14",
     "numeral": "^2.0.6",
     "react": "^18.2.0",
+    "react-redux": "^9.1.0",
     "redux": "^5.0.1",
     "socket.io-client": "^4.7.5"
   },

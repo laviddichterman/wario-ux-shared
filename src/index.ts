@@ -1,5 +1,6 @@
 export * from './lib/redux/SocketIoMiddleware';
 export * from './lib/redux/SocketIoSlice';
+export * from './lib/redux/selectorHelpers';
 export * from './lib/redux/thunks';
 export * from './lib/redux/selectors';
 export * from './lib/common/DateFnsAdapter';

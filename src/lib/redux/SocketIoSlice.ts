@@ -1,6 +1,7 @@
-import { createEntityAdapter, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
+import { createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
 import { parseISO } from 'date-fns';
-import type { CatalogCategoryEntry, CatalogModifierEntry, CatalogProductEntry, FulfillmentConfig, ICatalog, ICatalogSelectors, IMenu, IOption, IProductInstance, IProductInstanceFunction, IWSettings, OrderInstanceFunction } from "@wcp/wcpshared";
+import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type ICatalogSelectors, type IMenu, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry } from "@wcp/wcpshared";
+import { lruMemoizeOptionsWithSize, weakMapCreateSelector } from "./selectorHelpers";
 
 export const TIMING_POLLING_INTERVAL = 30000;
 
@@ -154,3 +155,34 @@ export const CatalogSelectors = (state: SocketIoState): ICatalogSelectors => ({
 export const { receiveCatalog, receiveFulfillments, receiveServerTime, receiveSettings, setConnected, setCurrentTime, setFailed, setMenu, startConnection } = SocketIoSlice.actions;
 export const SocketIoReducer = SocketIoSlice.reducer;
 export const IsSocketDataLoaded = (s: SocketIoState) => s.serverTime !== null && s.fulfillments !== null && s.catalog !== null && s.settings !== null;
+
+export const SelectParentProductEntryFromProductInstanceId = weakMapCreateSelector(
+  (s: SocketIoState) => s.products,
+  (s: SocketIoState, productInstanceId: string) => getProductInstanceById(s.productInstances, productInstanceId),
+  (products, productInstance) =>
+    productInstance ? getProductEntryById(products, productInstance.productId) : undefined,
+);
+
+export const SelectBaseProductByProductId = weakMapCreateSelector(
+  (s: SocketIoState, productClassId: string) => getProductEntryById(s.products, productClassId),
+  (s: SocketIoState, _: string) => s.productInstances,
+  (productEntry, productInstances) =>
+    getProductInstanceById(productInstances, productEntry.product.baseProductId),
+);
+
+export const SelectBaseProductNameByProductId = weakMapCreateSelector(
+  (s: SocketIoState, productClassId: string) => getProductEntryById(s.products, productClassId),
+  (s: SocketIoState, _: string) => s.productInstances,
+  (productEntry, productInstances) =>
+    productEntry ? getProductInstanceById(productInstances, productEntry.product.baseProductId)?.displayName ?? "UNDEFINED" : "UNDEFINED",
+);
+
+export const SelectProductMetadata = createSelector(
+  (_: SocketIoState, productId: string, __: ProductModifierEntry[], ___: Date | number, ____: string) => productId,
+  (_: SocketIoState, __: string, modifiers: ProductModifierEntry[], ___: Date | number, ____: string) => modifiers,
+  (_: SocketIoState, __: string, ___: ProductModifierEntry[], service_time: Date | number, ____: string) => service_time,
+  (_: SocketIoState, __: string, ___: ProductModifierEntry[], ____: Date | number, fulfillmentId: string) => fulfillmentId,
+  (s: SocketIoState, _: string, __: ProductModifierEntry[], ___: Date | number, ____: string) => CatalogSelectors(s),
+  (productId, modifiers, service_time, fulfillmentId, catalogSelectors) => WCPProductGenerateMetadata({ productId, modifiers }, catalogSelectors, service_time, fulfillmentId),
+  lruMemoizeOptionsWithSize(1000)
+)
