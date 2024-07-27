@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
 import { parseISO } from 'date-fns';
-import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type ICatalogSelectors, type IMenu, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry } from "@wcp/wcpshared";
+import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type ICatalogSelectors, type IMenu, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry, FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags } from "@wcp/wcpshared";
 import { lruMemoizeOptionsWithSize, weakMapCreateSelector } from "./selectorHelpers";
 
 export const TIMING_POLLING_INTERVAL = 30000;
@@ -183,6 +183,66 @@ export const SelectProductMetadata = createSelector(
   (_: SocketIoState, __: string, ___: ProductModifierEntry[], service_time: Date | number, ____: string) => service_time,
   (_: SocketIoState, __: string, ___: ProductModifierEntry[], ____: Date | number, fulfillmentId: string) => fulfillmentId,
   (s: SocketIoState, _: string, __: ProductModifierEntry[], ___: Date | number, ____: string) => CatalogSelectors(s),
-  (productId, modifiers, service_time, fulfillmentId, catalogSelectors) => WCPProductGenerateMetadata({ productId, modifiers }, catalogSelectors, service_time, fulfillmentId),
+  (productId, modifiers, service_time, fulfillmentId, catalogSelectors) => WCPProductGenerateMetadata(productId, modifiers, catalogSelectors, service_time, fulfillmentId),
   lruMemoizeOptionsWithSize(1000)
 )
+
+export const SelectProductsNotPermanentlyDisabled = createSelector(
+  (s: SocketIoState) => getProductEntries(s.products),
+  (products) => products.filter((x) =>
+    (!x.product.disabled || x.product.disabled.start <= x.product.disabled.end)),
+  lruMemoizeOptionsWithSize(10)
+);
+
+export const SelectProductIdsNotPermanentlyDisabled = createSelector(
+  (s: SocketIoState) => SelectProductsNotPermanentlyDisabled(s),
+  (products) => products.map(x => x.product.id)
+);
+
+
+type ProductCategoryFilter = "Menu" | "Order" | null;
+
+export const SelectProductInstanceIdsInCategory = weakMapCreateSelector(
+  (s: SocketIoState, categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => getCategoryEntryById(s.categories, categoryId),
+  (s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => s.products,
+  (s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => s.productInstances,
+  (s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => s.modifierOptions,
+  (_s: SocketIoState, _categoryId: string, filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => filter,
+  (_s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, order_time: Date | number, _fulfillmentId: string) => order_time,
+  (_s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, fulfillmentId: string) => fulfillmentId,
+  (category, products, productInstances, options, filter, order_time, fulfillmentId) => {
+    category.products.reduce((acc: string[], productId) => {
+      const product = getProductEntryById(products, productId);
+      if (!product.product.disabled || product.product.disabled.start <= product.product.disabled.end) {
+        return [...acc, ...product.instances.reduce((accB, pIId) => {
+          const pi = getProductInstanceById(productInstances, pIId);
+          const passesFilter = FilterProductUsingCatalog(productId, pi.modifiers, pi.displayFlags, { option: id => getModifierOptionById(options, id), productEntry: id => getProductEntryById(products, id) }, filter === 'Menu' ? GetMenuHideDisplayFlag : (filter === "Order" ? GetOrderHideDisplayFlag : IgnoreHideDisplayFlags), order_time, fulfillmentId);
+          return passesFilter ? [...accB, pIId] : accB;
+        }, [] as string[])];
+      }
+      return acc;
+    }, [] as string[])
+  }
+);
+// NOT SURE WHAT I WAS DOING WITH THESE TWO FUNCTIONS... they don't work at the moment.
+// export const selectProductsAfterDisableFilter = (catalogCategory: CatalogCategoryEntry, productSelector: ICatalogSelectors['productEntry']) {
+//   return catalogCategory.products.reduce((acc, productId) => {
+//     const product = productSelector(productId);
+//     if (product) {
+//       return [...acc, ...product.instances];
+//     }
+//     return acc;
+//   }, [] as string[])
+// }
+// // type ProductFilter = "Order" | "Menu" | null;
+
+// // export const SelectProductInstancesInCategory = weakMapCreateSelector(
+// //   (s: SocketIoState, categoryId: string, filter: ProductFilter) => 
+// // )
+
+// export const selectProductIdsInCategoryAfterDisableFilter = weakMapCreateSelector(
+//   (s: RootState, _: string) => selectProductsAfterDisableFilter(s),
+//   (_: RootState, categoryId: string) => categoryId,
+//   (productsAfterDisableFilter, categoryId) => Object.values(productsAfterDisableFilter).filter((x) =>
+//     x.product.category_ids.includes(categoryId)).map(x => x.product.id)
+// );
