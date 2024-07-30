@@ -200,30 +200,75 @@ export const SelectProductIdsNotPermanentlyDisabled = createSelector(
 );
 
 
-type ProductCategoryFilter = "Menu" | "Order" | null;
+export type ProductCategoryFilter = "Menu" | "Order" | null;
 
+/**
+ * Selects product instance IDs that pass relevant filters and are immediate children of the given categoryID
+ * Returns values in context order (Menu | Order)
+ */
 export const SelectProductInstanceIdsInCategory = weakMapCreateSelector(
-  (s: SocketIoState, categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => getCategoryEntryById(s.categories, categoryId),
-  (s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => s.products,
-  (s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => s.productInstances,
-  (s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => s.modifierOptions,
-  (_s: SocketIoState, _categoryId: string, filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => filter,
-  (_s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, order_time: Date | number, _fulfillmentId: string) => order_time,
-  (_s: SocketIoState, _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, fulfillmentId: string) => fulfillmentId,
+  (categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => getCategoryEntryById(categories, categoryId),
+  (_categories: SocketIoState['categories'], products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => products,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => productInstances,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => modifierOptions,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => filter,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, order_time: Date | number, _fulfillmentId: string) => order_time,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, fulfillmentId: string) => fulfillmentId,
   (category, products, productInstances, options, filter, order_time, fulfillmentId) => {
-    category.products.reduce((acc: string[], productId) => {
+    const categoryProductInstances = category.products.reduce((acc: IProductInstance[], productId) => {
       const product = getProductEntryById(products, productId);
       if (!product.product.disabled || product.product.disabled.start <= product.product.disabled.end) {
         return [...acc, ...product.instances.reduce((accB, pIId) => {
-          const pi = getProductInstanceById(productInstances, pIId);
+          const pi = getProductInstanceById(productInstances, pIId) satisfies IProductInstance;
           const passesFilter = FilterProductUsingCatalog(productId, pi.modifiers, pi.displayFlags, { option: id => getModifierOptionById(options, id), productEntry: id => getProductEntryById(products, id) }, filter === 'Menu' ? GetMenuHideDisplayFlag : (filter === "Order" ? GetOrderHideDisplayFlag : IgnoreHideDisplayFlags), order_time, fulfillmentId);
-          return passesFilter ? [...accB, pIId] : accB;
-        }, [] as string[])];
+          return passesFilter ? [...accB, pi] : accB;
+        }, [] as IProductInstance[])];
       }
       return acc;
-    }, [] as string[])
+    }, [] as IProductInstance[]);
+    switch (filter) {
+      case 'Menu':
+        categoryProductInstances.sort((a, b) => (a.displayFlags.menu.ordinal - b.displayFlags.menu.ordinal)); break;
+      case 'Order':
+        categoryProductInstances.sort((a, b) => (a.displayFlags.order.ordinal - b.displayFlags.order.ordinal)); break;
+      default:
+        break;
+    }
+    return categoryProductInstances.map(x => x.id);
   }
 );
+
+/**
+ * For a given categoryId, selects the sub category IDs that, somewhere down their tree, contain a product that is meant to be displayed
+ * with the passed context (product availability, time of order, fulfillment, display (menu/order))
+ * Returns values in context order (Menu | Order)
+ */
+export const SelectPopulatedSubcategoryIdsInCategory = weakMapCreateSelector(
+  (categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => categories,
+  (_categories: SocketIoState['categories'], products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => products,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => productInstances,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => modifierOptions,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => categoryId,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, filter: ProductCategoryFilter, _order_time: Date | number, _fulfillmentId: string) => filter,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, order_time: Date | number, _fulfillmentId: string) => order_time,
+  (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, fulfillmentId: string) => fulfillmentId,
+  (categories, products, productInstances, options, categoryId, filter, order_time, fulfillmentId) => {
+    const categoryEntry = getCategoryEntryById(categories, categoryId);
+    const subcats = categoryEntry.children.reduce((acc: CatalogCategoryEntry[], subcatId) => {
+      const subcategory = getCategoryEntryById(categories, subcatId);
+      const instances = SelectProductInstanceIdsInCategory(categories, products, productInstances, options, subcatId, filter, order_time, fulfillmentId);
+      if (instances.length > 0 || SelectPopulatedSubcategoryIdsInCategory(categories, products, productInstances, options, subcatId, filter, order_time, fulfillmentId).length > 0) {
+        return [...acc, subcategory];
+      }
+      else {
+        return acc;
+      }
+    }, []);
+    subcats.sort((a, b) => a.category.ordinal - b.category.ordinal);
+    return subcats.map(x => x.category.id);
+  }
+);
+
 // NOT SURE WHAT I WAS DOING WITH THESE TWO FUNCTIONS... they don't work at the moment.
 // export const selectProductsAfterDisableFilter = (catalogCategory: CatalogCategoryEntry, productSelector: ICatalogSelectors['productEntry']) {
 //   return catalogCategory.products.reduce((acc, productId) => {
