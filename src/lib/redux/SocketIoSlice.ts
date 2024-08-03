@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
 import { parseISO } from 'date-fns';
-import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type ICatalogSelectors, type IMenu, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry, FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags } from "@wcp/wcpshared";
+import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry, FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags } from "@wcp/wcpshared";
 import { lruMemoizeOptionsWithSize, weakMapCreateSelector } from "./selectorHelpers";
 
 export const TIMING_POLLING_INTERVAL = 30000;
@@ -44,7 +44,6 @@ export interface SocketIoState {
   currentLocalTime: number;
   serverTime: { time: string, tz: string } | null; // ISO formatted string
 
-  menu: IMenu | null;
   catalog: ICatalog | null;
   modifierEntries: EntityState<CatalogModifierEntry, string>;
   modifierOptions: EntityState<IOption, string>;
@@ -76,7 +75,6 @@ const initialState: SocketIoState = {
   productInstanceFunctions: ProductInstanceFunctionsAdapter.getInitialState(),
   orderInstanceFunctions: OrderInstanceFunctionsAdapter.getInitialState(),
   settings: null,
-  menu: null,
   status: "NONE"
 }
 
@@ -129,30 +127,37 @@ const SocketIoSlice = createSlice({
       state.currentTime = parseISO(state.serverTime!.time).valueOf() + ticks;
       state.roughTicksSinceLoad = ticks;
     },
-    setMenu(state, action: PayloadAction<IMenu>) {
-      state.menu = action.payload;
-    }
   }
 });
 
-export const CatalogSelectors = (state: SocketIoState): ICatalogSelectors => ({
-  categories: () => getCategoryEntryIds(state.categories) as string[],
-  category: (id) => getCategoryEntryById(state.categories, id),
-  modifierEntries: () => getModifierTypeEntryIds(state.modifierEntries) as string[],
-  modifierEntry: (id) => getModifierTypeEntryById(state.modifierEntries, id),
-  options: () => getModifierOptionIds(state.modifierOptions) as string[],
-  option: (id) => getModifierOptionById(state.modifierOptions, id),
-  productEntries: () => getProductEntryIds(state.products) as string[],
-  productEntry: (id) => getProductEntryById(state.products, id),
-  productInstances: () => getProductInstanceIds(state.productInstances) as string[],
-  productInstance: (id) => getProductInstanceById(state.productInstances, id),
-  orderInstanceFunctions: () => getOrderInstanceFunctionIds(state.orderInstanceFunctions) as string[],
-  orderInstanceFunction: (id) => getOrderInstanceFunctionById(state.orderInstanceFunctions, id),
-  productInstanceFunctions: () => getProductInstanceFunctionIds(state.productInstanceFunctions) as string[],
-  productInstanceFunction: (id) => getProductInstanceFunctionById(state.productInstanceFunctions, id)
-})
+export const SelectCatalogSelectors = createSelector(
+  (state: SocketIoState) => state.categories,
+  (state: SocketIoState) => state.modifierEntries,
+  (state: SocketIoState) => state.modifierOptions,
+  (state: SocketIoState) => state.products,
+  (state: SocketIoState) => state.productInstances,
+  (state: SocketIoState) => state.productInstanceFunctions,
+  (state: SocketIoState) => state.orderInstanceFunctions,
+  (categories, modifierEntries, modifierOptions, products, productInstances, productInstanceFunctions, orderInstanceFunctions) =>
+  ({
+    categories: () => getCategoryEntryIds(categories) as string[],
+    category: (id: string) => getCategoryEntryById(categories, id),
+    modifierEntries: () => getModifierTypeEntryIds(modifierEntries) as string[],
+    modifierEntry: (id: string) => getModifierTypeEntryById(modifierEntries, id),
+    options: () => getModifierOptionIds(modifierOptions) as string[],
+    option: (id: string) => getModifierOptionById(modifierOptions, id),
+    productEntries: () => getProductEntryIds(products) as string[],
+    productEntry: (id: string) => getProductEntryById(products, id),
+    productInstances: () => getProductInstanceIds(productInstances) as string[],
+    productInstance: (id: string) => getProductInstanceById(productInstances, id),
+    orderInstanceFunctions: () => getOrderInstanceFunctionIds(orderInstanceFunctions) as string[],
+    orderInstanceFunction: (id: string) => getOrderInstanceFunctionById(orderInstanceFunctions, id),
+    productInstanceFunctions: () => getProductInstanceFunctionIds(productInstanceFunctions) as string[],
+    productInstanceFunction: (id: string) => getProductInstanceFunctionById(productInstanceFunctions, id)
+  })
+);
 
-export const { receiveCatalog, receiveFulfillments, receiveServerTime, receiveSettings, setConnected, setCurrentTime, setFailed, setMenu, startConnection } = SocketIoSlice.actions;
+export const { receiveCatalog, receiveFulfillments, receiveServerTime, receiveSettings, setConnected, setCurrentTime, setFailed, startConnection } = SocketIoSlice.actions;
 export const SocketIoReducer = SocketIoSlice.reducer;
 export const IsSocketDataLoaded = (s: SocketIoState) => s.serverTime !== null && s.fulfillments !== null && s.catalog !== null && s.settings !== null;
 
@@ -182,7 +187,7 @@ export const SelectProductMetadata = createSelector(
   (_: SocketIoState, __: string, modifiers: ProductModifierEntry[], ___: Date | number, ____: string) => modifiers,
   (_: SocketIoState, __: string, ___: ProductModifierEntry[], service_time: Date | number, ____: string) => service_time,
   (_: SocketIoState, __: string, ___: ProductModifierEntry[], ____: Date | number, fulfillmentId: string) => fulfillmentId,
-  (s: SocketIoState, _: string, __: ProductModifierEntry[], ___: Date | number, ____: string) => CatalogSelectors(s),
+  (s: SocketIoState, _: string, __: ProductModifierEntry[], ___: Date | number, ____: string) => SelectCatalogSelectors(s),
   (productId, modifiers, service_time, fulfillmentId, catalogSelectors) => WCPProductGenerateMetadata(productId, modifiers, catalogSelectors, service_time, fulfillmentId),
   lruMemoizeOptionsWithSize(1000)
 )
