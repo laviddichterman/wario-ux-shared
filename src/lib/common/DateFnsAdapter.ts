@@ -1,9 +1,6 @@
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { DateBuilderReturnType } from '@mui/x-date-pickers/models';
 import { toDate as toDateBase } from 'date-fns';
-
-type DateBuilderReturnType<T extends string | null | undefined, TDate> = [T] extends [null]
-  ? null
-  : TDate;
 
 export const AdapterCurrentTimeOverrideUtils = (now: Date | number) =>
   class AdapterDateFnsWrapper extends AdapterDateFns {
