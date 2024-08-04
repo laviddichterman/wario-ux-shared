@@ -1,7 +1,7 @@
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { toDate as toDateBase } from 'date-fns';
 
-type DateBuilderReturnType<T extends string | null | undefined, TDate> = T extends null
+type DateBuilderReturnType<T extends string | null | undefined, TDate> = [T] extends [null]
   ? null
   : TDate;
 
@@ -21,23 +21,4 @@ export const AdapterCurrentTimeOverrideUtils = (now: Date | number) =>
 
       return <R>new Date(value);
     };
-
-    // date<
-    //   TArg extends unknown = undefined,
-    //   TRes extends unknown = TArg extends null
-    //   ? null
-    //   : TArg extends undefined
-    //   ? Date
-    //   : Date | null
-    // >(value?: TArg): TRes {
-    //   if (typeof value === "undefined") {
-    //     return toDateBase(now) as TRes;
-    //   }
-
-    //   if (value === null) {
-    //     return null as TRes;
-    //   }
-
-    //   return toDateBase(value as string | number | Date) as TRes;
-    // }
   };

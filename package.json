@@ -1,6 +1,6 @@
 {
   "name": "@wcp/wario-ux-shared",
-  "version": "1.1.10",
+  "version": "1.2.0",
   "description": "Shared UX elements across WARIO",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -44,7 +44,7 @@
     "@wcp/wcpshared": "^4.4.2"
   },
   "peerDependencies": {
-    "@mui/x-date-pickers": "^6.20.2",
+    "@mui/x-date-pickers": "^7.12.0",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^5.16.6",
