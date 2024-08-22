@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Input, Label } from '../';
+import { } from '../';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 
@@ -27,15 +27,14 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <Label>My Label</Label><br />
-        <Input
+        <input
           placeholder="Custom count"
           value={inputCustomCountValue}
           onChange={(e) => setInputCustomCountValue(e.target.value)}
         /><br />
-        <Button onClick={handleClickCustomCount}>
+        <button onClick={handleClickCustomCount}>
           count is {count}
-        </Button>
+        </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
