@@ -1,5 +1,5 @@
+import { Paper, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import { useMemo } from 'react';
-import { Table, TableBody, TableContainer, TableRow, TableCell, Paper } from '@mui/material';
 
 import { ComputeServiceTimeDisplayString, CustomerInfoDto, FulfillmentConfig, FulfillmentDto, WDateUtils } from '@wcp/wcpshared';
 import { format } from 'date-fns';
@@ -11,8 +11,7 @@ export interface ServiceInfoTableComponentProps {
   specialInstructions: string;
 }
 
-export const ServiceInfoTableComponent = (props: ServiceInfoTableComponentProps) => {
-  const { fulfillment, customerInfo, specialInstructions, fulfillmentConfig } = props;
+export const ServiceInfoTableComponent = ({ fulfillment, customerInfo, specialInstructions, fulfillmentConfig }: ServiceInfoTableComponentProps) => {
   const serviceDateTime = useMemo(() => WDateUtils.ComputeServiceDateTime(fulfillment), [fulfillment]);
   return (
     <TableContainer component={Paper} sx={{ pb: 3 }} >

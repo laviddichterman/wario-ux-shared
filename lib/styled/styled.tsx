@@ -1,5 +1,5 @@
+import { Button, FormControlLabel, ToggleButton, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Typography, ToggleButton, Button, FormControlLabel } from '@mui/material';
 
 export const SquareButtonCSS = {
   backgroundColor: "#252525",
