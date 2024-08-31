@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
+import { FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags, WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry } from "@wcp/wcpshared";
 import { parseISO } from 'date-fns';
-import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry, FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags } from "@wcp/wcpshared";
 import { lruMemoizeOptionsWithSize, weakMapCreateSelector } from "./selectorHelpers";
 
 export const TIMING_POLLING_INTERVAL = 30000;
@@ -42,6 +42,8 @@ export interface SocketIoState {
   roughTicksSinceLoad: number;
   currentTime: number;
   currentLocalTime: number;
+  // previous output of Date.now() for use in calculating time elapsed
+  previousCallNowTime: number;
   serverTime: { time: string, tz: string } | null; // ISO formatted string
 
   catalog: ICatalog | null;
@@ -63,6 +65,7 @@ const initialState: SocketIoState = {
   roughTicksSinceLoad: 0,
   currentTime: 0,
   currentLocalTime: 0,
+  previousCallNowTime: 0,
 
   serverTime: null,
   catalog: null,
@@ -120,10 +123,21 @@ const SocketIoSlice = createSlice({
       state.settings = action.payload;
     },
     // invoked by middleware
-    setCurrentTime(state, action: PayloadAction<number>) {
-      const currentLocalTime = action.payload;
-      const ticks = Math.max(state.roughTicksSinceLoad + TIMING_POLLING_INTERVAL, currentLocalTime - state.pageLoadTimeLocal);
-      state.currentLocalTime = Math.max(currentLocalTime, state.pageLoadTimeLocal + ticks);
+    setCurrentTime(state, action: PayloadAction<{ currentLocalTime: number; ticksElapsed: number; }>) {
+
+      //TODO: rewrite this to also store the previous local time and calculate the time elapsed from that
+      // we need to be able to call this function multiple times in a row and have it calculate the time elapsed
+      // even if it wasn't TIMING_POLLING_INTERVAL between calls
+      const { currentLocalTime, ticksElapsed } = action.payload;
+      const ticksBetweenLocalTimeThisAndPreviousCall = currentLocalTime - state.previousCallNowTime;
+      const totalTicksBetweenLocalTime = currentLocalTime - state.pageLoadTimeLocal;
+      const computedTicksElapsedBetweenCalls = Math.max(ticksElapsed, ticksBetweenLocalTimeThisAndPreviousCall);
+      const computedTicksSinceLoad = state.roughTicksSinceLoad + computedTicksElapsedBetweenCalls;
+      const ticks = Math.max(computedTicksSinceLoad, totalTicksBetweenLocalTime);
+      const newLocalTime = Math.max(currentLocalTime, state.pageLoadTimeLocal + ticks);
+      console.log({ ticks, totalTicksBetweenLocalTime, computedTicksSinceLoad, newLocalTime, currentLocalTime });
+      state.currentLocalTime = newLocalTime;
+      state.previousCallNowTime = currentLocalTime;
       state.currentTime = parseISO(state.serverTime!.time).valueOf() + ticks;
       state.roughTicksSinceLoad = ticks;
     },
