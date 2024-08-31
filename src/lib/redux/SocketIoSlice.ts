@@ -42,8 +42,6 @@ export interface SocketIoState {
   roughTicksSinceLoad: number;
   currentTime: number;
   currentLocalTime: number;
-  // previous output of Date.now() for use in calculating time elapsed
-  previousCallNowTime: number;
   serverTime: { time: string, tz: string } | null; // ISO formatted string
 
   catalog: ICatalog | null;
@@ -65,7 +63,6 @@ const initialState: SocketIoState = {
   roughTicksSinceLoad: 0,
   currentTime: 0,
   currentLocalTime: 0,
-  previousCallNowTime: 0,
 
   serverTime: null,
   catalog: null,
@@ -124,20 +121,13 @@ const SocketIoSlice = createSlice({
     },
     // invoked by middleware
     setCurrentTime(state, action: PayloadAction<{ currentLocalTime: number; ticksElapsed: number; }>) {
-
-      //TODO: rewrite this to also store the previous local time and calculate the time elapsed from that
-      // we need to be able to call this function multiple times in a row and have it calculate the time elapsed
-      // even if it wasn't TIMING_POLLING_INTERVAL between calls
       const { currentLocalTime, ticksElapsed } = action.payload;
-      const ticksBetweenLocalTimeThisAndPreviousCall = currentLocalTime - state.previousCallNowTime;
+      const ticksBetweenLocalTimeThisAndPreviousCall = currentLocalTime - state.currentLocalTime;
       const totalTicksBetweenLocalTime = currentLocalTime - state.pageLoadTimeLocal;
       const computedTicksElapsedBetweenCalls = Math.max(ticksElapsed, ticksBetweenLocalTimeThisAndPreviousCall);
       const computedTicksSinceLoad = state.roughTicksSinceLoad + computedTicksElapsedBetweenCalls;
       const ticks = Math.max(computedTicksSinceLoad, totalTicksBetweenLocalTime);
-      const newLocalTime = Math.max(currentLocalTime, state.pageLoadTimeLocal + ticks);
-      console.log({ ticks, totalTicksBetweenLocalTime, computedTicksSinceLoad, newLocalTime, currentLocalTime });
-      state.currentLocalTime = newLocalTime;
-      state.previousCallNowTime = currentLocalTime;
+      state.currentLocalTime = currentLocalTime;
       state.currentTime = parseISO(state.serverTime!.time).valueOf() + ticks;
       state.roughTicksSinceLoad = ticks;
     },

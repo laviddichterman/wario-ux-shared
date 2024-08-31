@@ -57,6 +57,8 @@ function WProductComponent({ catalogSelectors, productMetadata, description, all
       {dots && <Dots />}
       {descriptionHTML &&
         <span><ProductDescription dangerouslySetInnerHTML={{ __html: descriptionHTML }} /></span>}
+      {/* split up pre-set description and the selected options, if both exist */}
+      {descriptionHTML && description && optionsSections ? <br /> : ""}
       {description && optionsSections && optionsSections.map((option_section, l) =>
         <ProductDescription key={l} >
           <>
