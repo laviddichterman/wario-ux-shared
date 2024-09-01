@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { ComputePotentialPrices, WProductMetadata, WProductDisplayOptions, PriceDisplay, MoneyToDisplayString, ICatalogSelectors } from '@wcp/wcpshared';
 import { Box, BoxProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Dots, ProductAdornment, AdornedSxProps, ProductDescription, ProductPrice, ProductTitle } from '../styled/styled';
+import { ComputePotentialPrices, ICatalogSelectors, MoneyToDisplayString, PriceDisplay, WProductDisplayOptions, WProductMetadata } from '@wcp/wcpshared';
+import { useMemo } from 'react';
+import { AdornedSxProps, Dots, ProductAdornment, ProductDescription, ProductPrice, ProductTitle } from '../styled/styled';
 
 interface WProductComponentProps {
   catalogSelectors: ICatalogSelectors;
@@ -57,6 +57,8 @@ function WProductComponent({ catalogSelectors, productMetadata, description, all
       {dots && <Dots />}
       {descriptionHTML &&
         <span><ProductDescription dangerouslySetInnerHTML={{ __html: descriptionHTML }} /></span>}
+      {/* split up pre-set description and the selected options, if both exist */}
+      {descriptionHTML && description && optionsSections ? <br /> : ""}
       {description && optionsSections && optionsSections.map((option_section, l) =>
         <ProductDescription key={l} >
           <>
@@ -85,6 +87,3 @@ export const ClickableProductDisplay = styled(ProductDisplay)(() => ({
     fontSize: "0.85em",
   }
 }));
-
-
-

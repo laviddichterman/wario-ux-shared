@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from "@reduxjs/toolkit";
+import { FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags, WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry } from "@wcp/wcpshared";
 import { parseISO } from 'date-fns';
-import { WCPProductGenerateMetadata, type CatalogCategoryEntry, type CatalogModifierEntry, type CatalogProductEntry, type FulfillmentConfig, type ICatalog, type IOption, type IProductInstance, type IProductInstanceFunction, type IWSettings, type OrderInstanceFunction, type ProductModifierEntry, FilterProductUsingCatalog, GetMenuHideDisplayFlag, GetOrderHideDisplayFlag, IgnoreHideDisplayFlags } from "@wcp/wcpshared";
 import { lruMemoizeOptionsWithSize, weakMapCreateSelector } from "./selectorHelpers";
 
 export const TIMING_POLLING_INTERVAL = 30000;
@@ -120,10 +120,14 @@ const SocketIoSlice = createSlice({
       state.settings = action.payload;
     },
     // invoked by middleware
-    setCurrentTime(state, action: PayloadAction<number>) {
-      const currentLocalTime = action.payload;
-      const ticks = Math.max(state.roughTicksSinceLoad + TIMING_POLLING_INTERVAL, currentLocalTime - state.pageLoadTimeLocal);
-      state.currentLocalTime = Math.max(currentLocalTime, state.pageLoadTimeLocal + ticks);
+    setCurrentTime(state, action: PayloadAction<{ currentLocalTime: number; ticksElapsed: number; }>) {
+      const { currentLocalTime, ticksElapsed } = action.payload;
+      const ticksBetweenLocalTimeThisAndPreviousCall = currentLocalTime - state.currentLocalTime;
+      const totalTicksBetweenLocalTime = currentLocalTime - state.pageLoadTimeLocal;
+      const computedTicksElapsedBetweenCalls = Math.max(ticksElapsed, ticksBetweenLocalTimeThisAndPreviousCall);
+      const computedTicksSinceLoad = state.roughTicksSinceLoad + computedTicksElapsedBetweenCalls;
+      const ticks = Math.max(computedTicksSinceLoad, totalTicksBetweenLocalTime);
+      state.currentLocalTime = currentLocalTime;
       state.currentTime = parseISO(state.serverTime!.time).valueOf() + ticks;
       state.roughTicksSinceLoad = ticks;
     },

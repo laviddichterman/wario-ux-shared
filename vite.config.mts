@@ -8,6 +8,7 @@ import { extname, relative, resolve } from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
+import { peerDependencies } from './package.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -36,7 +37,7 @@ export default defineConfig({
     rollupOptions: {
       // Exclude peer dependencies from the bundle to reduce bundle size
       external: ['react', 'react/jsx-runtime',
-        // ...Object.keys(peerDependencies)
+        ...Object.keys(peerDependencies)
       ],
       input: Object.fromEntries(
         // https://rollupjs.org/configuration-options/#input
