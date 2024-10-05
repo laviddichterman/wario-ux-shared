@@ -1,6 +1,6 @@
 {
   "name": "@wcp/wario-ux-shared",
-  "version": "1.3.11",
+  "version": "1.3.12",
   "description": "Shared UX elements across WARIO",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -41,17 +41,18 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@wcp/wcpshared": "^4.5.1",
-    "@reduxjs/toolkit": "^2.2.7"
+    "@reduxjs/toolkit": "^2.2.7",
+    "@wcp/wcpshared": "^4.5.2"
   },
   "peerDependencies": {
-    "@mui/x-date-pickers": "^6.20.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^5.16.7",
     "@mui/styled-engine": "^5.16.6",
+    "@mui/x-date-pickers": "^6.20.2",
     "@reduxjs/toolkit": "^2.2.7",
-    "@wcp/wcpshared": "^4.5.1",
+    "@wcp/wcpshared": "^4.5.2",
+    "axios": "^1.7.7",
     "framer-motion": "^11.3.31",
     "numeral": "^2.0.6",
     "react": "^18.3.1",
@@ -61,13 +62,13 @@
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.14",
-    "@types/node": "^22.5.1",
+    "@types/node": "^22.7.4",
     "@types/numeral": "^2.0.5",
+    "@types/ws": "^8.5.12",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
-    "axios": "^1.7.6",
     "codecov": "^3.8.3",
-    "cspell": "^8.14.2",
+    "cspell": "^8.14.4",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -81,8 +82,8 @@
     "prettier": "^3.3.3",
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.26.6",
-    "typescript": "5.5.4"
+    "typedoc": "^0.26.8",
+    "typescript": "5.6.2"
   },
   "files": [
     "build/main",
@@ -93,7 +94,6 @@
     "LICENSE",
     "README.md"
   ],
-
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
