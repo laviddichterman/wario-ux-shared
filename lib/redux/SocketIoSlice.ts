@@ -224,6 +224,9 @@ export const SelectProductInstanceIdsInCategory = weakMapCreateSelector(
   (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, order_time: Date | number, _fulfillmentId: string) => order_time,
   (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, fulfillmentId: string) => fulfillmentId,
   (category, products, productInstances, options, filter, order_time, fulfillmentId) => {
+    if (category.category.serviceDisable.indexOf(fulfillmentId) !== -1) {
+      return [];
+    }
     const categoryProductInstances = category.products.reduce((acc: IProductInstance[], productId) => {
       const product = getProductEntryById(products, productId);
       if (!product.product.disabled || product.product.disabled.start <= product.product.disabled.end) {
@@ -263,6 +266,9 @@ export const SelectPopulatedSubcategoryIdsInCategory = weakMapCreateSelector(
   (_categories: SocketIoState['categories'], _products: SocketIoState['products'], _productInstances: SocketIoState['productInstances'], _modifierOptions: SocketIoState['modifierOptions'], _categoryId: string, _filter: ProductCategoryFilter, _order_time: Date | number, fulfillmentId: string) => fulfillmentId,
   (categories, products, productInstances, options, categoryId, filter, order_time, fulfillmentId) => {
     const categoryEntry = getCategoryEntryById(categories, categoryId);
+    if (categoryEntry.category.serviceDisable.indexOf(fulfillmentId) !== -1) {
+      return [];
+    }
     const subcats = categoryEntry.children.reduce((acc: CatalogCategoryEntry[], subcatId) => {
       const subcategory = getCategoryEntryById(categories, subcatId);
       const instances = SelectProductInstanceIdsInCategory(categories, products, productInstances, options, subcatId, filter, order_time, fulfillmentId);
@@ -278,7 +284,7 @@ export const SelectPopulatedSubcategoryIdsInCategory = weakMapCreateSelector(
   }
 );
 
-// NOT SURE WHAT I WAS DOING WITH THESE TWO FUNCTIONS... they don't work at the moment.
+
 // export const selectProductsAfterDisableFilter = (catalogCategory: CatalogCategoryEntry, productSelector: ICatalogSelectors['productEntry']) {
 //   return catalogCategory.products.reduce((acc, productId) => {
 //     const product = productSelector(productId);
