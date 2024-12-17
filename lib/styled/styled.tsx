@@ -58,13 +58,13 @@ export const ErrorResponseOutput = styled(OkResponseOutput)(() => ({
 }));
 
 export const StepperTitle = styled(Typography)(() => ({
-  fontFamily: "Source Sans Pro",
+  fontFamily: ['Source Sans Pro', 'sans-serif'],
   fontWeight: '500',
   fontSize: "1em",
 }));
 
 export const StageTitle = styled(Typography)(() => ({
-  fontFamily: "Source Sans Pro",
+  fontFamily: ['Source Sans Pro', 'sans-serif'],
   letterSpacing: '.1em',
   fontWeight: '700',
   fontSize: "24px",
@@ -118,7 +118,7 @@ export const ProductTitle = styled('span')(() => ({
   position: "relative",
   zIndex: 5,
   textAlign: 'left',
-  fontFamily: "Source Sans Pro",
+  fontFamily: ['Source Sans Pro', 'sans-serif'],
   letterSpacing: "0.1em",
   textTransform: 'uppercase',
   fontSize: "1.1875rem",

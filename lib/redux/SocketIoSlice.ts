@@ -130,6 +130,7 @@ const SocketIoSlice = createSlice({
       state.currentLocalTime = currentLocalTime;
       state.currentTime = parseISO(state.serverTime!.time).valueOf() + ticks;
       state.roughTicksSinceLoad = ticks;
+      console.log("Current Time: ", state.currentTime);
     },
   }
 });
