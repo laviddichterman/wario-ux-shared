@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "target": "es6",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "outDir": "build/module",
+    "module": "esnext"
+  },
+  "jsx": "react-jsx",
+  "exclude": ["node_modules/**"]
+}
