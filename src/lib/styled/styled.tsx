@@ -46,9 +46,6 @@ export const AdornedSxProps = {
 };
 
 
-
-
-
 export const OkResponseOutput = styled('div')(() => ({
   margin: '2em .5em 1em', padding: ".2em 1em", border: "2px solid blue"
 }));
@@ -62,13 +59,13 @@ export const ErrorResponseOutput = styled(OkResponseOutput)(() => ({
 }));
 
 export const StepperTitle = styled(Typography)(() => ({
-  fontFamily: ['Source Sans Pro', 'sans-serif'],
+  fontFamily: 'Source Sans Pro',
   fontWeight: '500',
   fontSize: "1em",
 }));
 
 export const StageTitle = styled(Typography)(() => ({
-  fontFamily: ['Source Sans Pro', 'sans-serif'],
+  fontFamily: 'Source Sans Pro',
   letterSpacing: '.1em',
   fontWeight: '700',
   fontSize: "24px",
