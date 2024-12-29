@@ -1,9 +1,9 @@
-import { Typography, Table, TableBody, TableContainer, TableRow, TableHead, TableCell, Paper } from '@mui/material';
-import { ProductDisplay } from './WProductComponent';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { CoreCartEntry, DiscountMethod, ICatalogSelectors, IMoney, MoneyToDisplayString, OrderLineDiscount, OrderPayment, PaymentMethod, TenderBaseStatus, WProduct } from '@wcp/wcpshared';
+import { useCallback, useMemo } from 'react';
 import { fPercent } from '../common/numbers';
 import { ProductPrice, ProductTitle } from '../styled/styled';
-import { useCallback, useMemo } from 'react';
+import { ProductDisplay } from './WProductComponent';
 
 export interface WCheckoutCartComponentProps {
   selectedService: string;
@@ -80,14 +80,6 @@ export function WCheckoutCartComponent(props: WCheckoutCartComponentProps) {
                 <ProductPrice >-{MoneyToDisplayString(discount.discount.amount, false)}</ProductPrice>
               </TableCell>
             </TableRow>)}
-          {props.serviceCharge && props.serviceCharge.amount > 0 &&
-            <TableRow>
-              <TableCell colSpan={3} >
-                <ProductTitle>Staff Commission</ProductTitle>
-                <div>We've eliminated tipping in favor of a flat service charge that is distributed in its entirety to all non-owner staff working front and back of house on the day of your order.</div>
-              </TableCell>
-              <TableCell colSpan={2} align="right"><ProductPrice>{MoneyToDisplayString(props.serviceCharge, false)}</ProductPrice></TableCell>
-            </TableRow>}
           {props.taxValue && props.taxValue.amount > 0 &&
             <TableRow>
               <TableCell colSpan={3} >

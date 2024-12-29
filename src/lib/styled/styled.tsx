@@ -45,11 +45,15 @@ export const AdornedSxProps = {
   }
 };
 
+
+
+
+
 export const OkResponseOutput = styled('div')(() => ({
   margin: '2em .5em 1em', padding: ".2em 1em", border: "2px solid blue"
 }));
 
-export const WarningResponseOutput = styled(OkResponseOutput)(() => ({
+export const WarningResponseOutput: typeof OkResponseOutput = styled(OkResponseOutput)(() => ({
   borderColor: '#f7e700'
 }));
 

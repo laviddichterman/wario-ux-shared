@@ -1,6 +1,6 @@
 {
   "name": "@wcp/wario-ux-shared",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Shared UX elements across WARIO",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -17,13 +17,13 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.5.0",
-    "@wcp/wcpshared": "^4.5.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "5.16.7",
-    "@mui/styled-engine": "^5.16.6",
+    "@mui/styled-engine": "5.16.12",
     "@mui/x-date-pickers": "^6.20.2",
+    "@reduxjs/toolkit": "^2.5.0",
+    "@wcp/wcpshared": "^4.5.4",
     "axios": "^1.7.9",
     "framer-motion": "^11.15.0",
     "numeral": "^2.0.6",
@@ -35,8 +35,8 @@
   "peerDependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@mui/material": "5.16.7",
-    "@mui/styled-engine": "^5.16.6",
+    "@mui/material": "5.16.12",
+    "@mui/styled-engine": "^5.16.13",
     "@mui/x-date-pickers": "^6.20.2",
     "@reduxjs/toolkit": "^2.2.7",
     "@wcp/wcpshared": "^4.5.2",
@@ -53,12 +53,12 @@
     "@types/node": "^22.10.2",
     "@types/numeral": "^2.0.5",
     "@types/ws": "^8.5.13",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
     "codecov": "^3.8.3",
     "cspell": "^8.17.1",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^8.57.0",
+    "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-functional": "^6.6.3",
@@ -70,7 +70,7 @@
     "prettier": "^3.4.2",
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.26.8",
+    "typedoc": "^0.26.11",
     "typescript": "5.6.2"
   },
   "files": [
@@ -82,7 +82,6 @@
     "LICENSE",
     "README.md"
   ],
-
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
