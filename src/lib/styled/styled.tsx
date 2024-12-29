@@ -119,7 +119,7 @@ export const ProductTitle = styled('span')(() => ({
   position: "relative",
   zIndex: 5,
   textAlign: 'left',
-  fontFamily: ['Source Sans Pro', 'sans-serif'],
+  fontFamily: 'Source Sans Pro',
   letterSpacing: "0.1em",
   textTransform: 'uppercase',
   fontSize: "1.1875rem",
