@@ -1,6 +1,6 @@
 {
   "name": "@wcp/wario-ux-shared",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "Shared UX elements across WARIO",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -20,9 +20,9 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^5.16.14",
-    "@mui/styled-engine": "^5.16.14",
-    "@mui/system": "^5.16.14",
+    "@mui/material": "^6.4.0",
+    "@mui/styled-engine": "^6.4.0",
+    "@mui/system": "^6.4.0",
     "@mui/x-date-pickers": "^7.24.0",
     "@reduxjs/toolkit": "^2.5.0",
     "@wcp/wcpshared": "^4.5.5",
@@ -39,9 +39,9 @@
   "peerDependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mui/material": "^5.16.14",
-    "@mui/styled-engine": "^5.16.12",
-    "@mui/system": "^5.16.7",
+    "@mui/material": "^6.4.0",
+    "@mui/styled-engine": "^6.4.0",
+    "@mui/system": "^6.4.0",
     "@mui/x-date-pickers": "^7.24.0",
     "@reduxjs/toolkit": "^2.5.0",
     "@wcp/wcpshared": "^4.5.5",
