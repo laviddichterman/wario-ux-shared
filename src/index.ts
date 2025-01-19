@@ -1,4 +1,4 @@
-export * from './lib/common/DateFnsAdapter';
+// export * from './lib/common/DateFnsAdapter';
 export * from './lib/common/numbers';
 export * from './lib/common/shared';
 export * from './lib/components/LoadingScreen';
