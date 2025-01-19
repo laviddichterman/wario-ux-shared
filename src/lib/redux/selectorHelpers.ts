@@ -1,5 +1,6 @@
-import { createDraftSafeSelectorCreator, lruMemoize, weakMapMemoize } from "@reduxjs/toolkit";
+import { createDraftSafeSelectorCreator, lruMemoize } from "@reduxjs/toolkit";
 import { shallowEqual } from 'react-redux';
+import { weakMapMemoize } from "reselect";
 
 export const weakMapCreateSelector = createDraftSafeSelectorCreator(weakMapMemoize);
 
